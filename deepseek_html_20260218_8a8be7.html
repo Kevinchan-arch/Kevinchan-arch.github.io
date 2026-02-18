@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>📱 无限文案生成器 · 朋友圈</title>
+    <!-- 柔光字体 & 图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(145deg, #f9e3e0 0%, #f5d0e0 40%, #c7dfff 100%);
+            background-attachment: fixed;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 12px;
+        }
+
+        .glass-card {
+            width: 100%;
+            max-width: 600px;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(16px) saturate(180%);
+            -webkit-backdrop-filter: blur(16px) saturate(180%);
+            border-radius: 42px;
+            box-shadow: 0 25px 50px -8px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.5) inset;
+            padding: 28px 24px;
+            transition: all 0.2s ease;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            background: linear-gradient(130deg, #5b4b8a, #b86b9c);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        h1 i {
+            font-size: 2rem;
+            color: #b3739c;
+            background: rgba(255,255,255,0.4);
+            padding: 10px;
+            border-radius: 50%;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.02);
+        }
+
+        .sub {
+            font-size: 1rem;
+            color: #6b5a6f;
+            margin-bottom: 28px;
+            padding-left: 6px;
+            font-weight: 400;
+            border-left: 3px solid #cb9bc7;
+            padding-left: 14px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 0 20px 20px 0;
+            width: fit-content;
+        }
+
+        .input-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .input-wrapper {
+            flex: 1 1 240px;
+            background: rgba(255,255,255,0.7);
+            border-radius: 48px;
+            padding: 4px 4px 4px 22px;
+            display: flex;
+            align-items: center;
+            border: 1px solid rgba(255,255,255,0.9);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+        }
+
+        .input-wrapper i {
+            color: #b282a8;
+            font-size: 1.1rem;
+            margin-right: 8px;
+        }
+
+        #keywordInput {
+            flex: 1;
+            border: none;
+            background: transparent;
+            padding: 14px 10px 14px 0;
+            font-size: 1.05rem;
+            outline: none;
+            color: #2f2633;
+            font-weight: 500;
+        }
+
+        #keywordInput::placeholder {
+            color: #a48da8;
+            font-weight: 300;
+            font-style: italic;
+        }
+
+        #generateBtn {
+            background: linear-gradient(135deg, #8b6e96, #aa7a9e);
+            border: none;
+            padding: 0 28px;
+            border-radius: 48px;
+            color: white;
+            font-weight: 600;
+            font-size: 1.1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            box-shadow: 0 8px 18px #cda5cf70, 0 2px 0 #fff9 inset;
+            transition: all 0.15s;
+            border: 1px solid rgba(255,255,255,0.5);
+            height: 56px;
+            white-space: nowrap;
+        }
+
+        #generateBtn:hover {
+            background: linear-gradient(135deg, #7b5d86, #99688c);
+            transform: scale(0.98);
+            box-shadow: 0 4px 12px #b388b0;
+        }
+
+        .tag-cloud {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 20px 0 18px;
+        }
+
+        .tag {
+            background: rgba(255,250,250,0.7);
+            backdrop-filter: blur(4px);
+            padding: 10px 22px;
+            border-radius: 60px;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #513e53;
+            box-shadow: 0 4px 12px rgba(255,200,230,0.3);
+            cursor: pointer;
+            border: 1px solid rgba(255,255,255,0.8);
+            transition: all 0.1s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .tag i {
+            font-size: 1.1rem;
+            color: #ad799b;
+        }
+
+        .tag:active {
+            background: #e6cfdd;
+            transform: scale(0.94);
+            border-color: #bf96b3;
+        }
+
+        .results-container {
+            margin-top: 28px;
+            border-radius: 36px;
+            background: rgba(255,255,255,0.3);
+            padding: 12px 8px;
+            max-height: 460px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #ccb0c0 #ffeaf3;
+        }
+
+        .results-container::-webkit-scrollbar {
+            width: 6px;
+        }
+        .results-container::-webkit-scrollbar-track {
+            background: #ffeaf3;
+            border-radius: 20px;
+        }
+        .results-container::-webkit-scrollbar-thumb {
+            background: #ccb0c0;
+            border-radius: 20px;
+        }
+
+        .result-item {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(2px);
+            border-radius: 30px;
+            padding: 14px 22px 14px 26px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border: 1px solid rgba(255,255,255,0.9);
+            box-shadow: 0 6px 12px rgba(180,130,150,0.1);
+            transition: all 0.15s;
+        }
+
+        .result-item:hover {
+            background: rgba(255,245,250,0.95);
+            border-color: #ebc8df;
+        }
+
+        .copy-content {
+            flex: 1;
+            font-size: 1.05rem;
+            line-height: 1.45;
+            color: #352a37;
+            font-weight: 460;
+            word-break: break-word;
+            padding-right: 10px;
+        }
+
+        .copy-btn {
+            background: transparent;
+            border: none;
+            font-size: 1.5rem;
+            color: #a67292;
+            cursor: pointer;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 40px;
+            transition: 0.1s;
+            background: rgba(255,255,255,0.6);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255,255,255,0.7);
+        }
+
+        .copy-btn:hover {
+            background: #ad80a3;
+            color: white;
+            border-color: #a5518a;
+        }
+
+        .copy-btn i {
+            pointer-events: none;
+        }
+
+        .toast-message {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #2b2025da;
+            backdrop-filter: blur(8px);
+            color: white;
+            padding: 14px 32px;
+            border-radius: 60px;
+            font-weight: 500;
+            font-size: 1rem;
+            box-shadow: 0 20px 35px #aa7a9f50;
+            border: 1px solid #ffdbef;
+            letter-spacing: 0.3px;
+            z-index: 999;
+            transition: opacity 0.2s;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .toast-message.show {
+            opacity: 1;
+        }
+
+        .footer-note {
+            margin-top: 16px;
+            text-align: center;
+            font-size: 0.85rem;
+            color: #826882;
+            font-weight: 400;
+            text-shadow: 0 2px 6px white;
+        }
+        .footer-note i {
+            color: #b45e97;
+        }
+    </style>
+</head>
+<body>
+    <div class="glass-card">
+        <h1>
+            <i class="fa-regular fa-message"></i> 
+            无限文案生成器
+        </h1>
+        <div class="sub">🎐 输入任意词 · 每次都不一样</div>
+
+        <div class="input-group">
+            <div class="input-wrapper">
+                <i class="fa-regular fa-pen-to-square"></i>
+                <input type="text" id="keywordInput" placeholder="例如: 旅行 美食 自拍 励志 心情" value="旅行">
+            </div>
+            <button id="generateBtn">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> 
+                生成
+            </button>
+        </div>
+
+        <div class="tag-cloud">
+            <span class="tag" data-keyword="旅行"><i class="fa-solid fa-umbrella-beach"></i> 旅行</span>
+            <span class="tag" data-keyword="美食"><i class="fa-solid fa-utensils"></i> 美食</span>
+            <span class="tag" data-keyword="自拍"><i class="fa-solid fa-camera-retro"></i> 自拍</span>
+            <span class="tag" data-keyword="励志"><i class="fa-solid fa-star"></i> 励志</span>
+            <span class="tag" data-keyword="心情"><i class="fa-regular fa-face-smile"></i> 心情</span>
+        </div>
+
+        <div class="results-container" id="resultsContainer">
+            <!-- 动态生成的内容会出现在这里 -->
+        </div>
+
+        <div class="footer-note">
+            <i class="fa-regular fa-heart"></i> 点击 <i class="fa-regular fa-copy"></i> 复制 · 无限组合，每次刷新
+        </div>
+    </div>
+
+    <div id="toast" class="toast-message">✨ 文案已复制到剪贴板</div>
+
+    <script>
+        (function() {
+            // ---------- 🌟 无限文案核心：模板 + 随机词库 ----------
+            
+            // 1. 定义各个类别的模板（每个模板用 {{变量}} 占位）
+            const templates = {
+                // 通用/默认
+                default: [
+                    "今天{{心情副词}}，{{日常动词}}一下。",
+                    "{{时间词语}}，{{微小美好}}。",
+                    "{{心情形容词}}的一天从{{日常名词}}开始。",
+                    "没什么，就是想{{日常动词}}。",
+                    "{{日常名词}}＋{{心情副词}}＝我的{{时间词语}}。",
+                    "{{微小美好}}，分享给你。",
+                    "听说{{日常名词}}和{{心情副词}}更配哦。",
+                    "{{时间词语}}的{{日常名词}}，{{心情副词}}的。"
+                ],
+                // 旅行
+                旅行: [
+                    "在{{地点}}，{{旅行感受}}。",
+                    "{{交通工具}}开往{{地点}}，一路{{旅行感受}}。",
+                    "{{地点}}的{{风景元素}}，{{旅行感受}}。",
+                    "把{{旅行物品}}装满{{旅行感受}}，出发去{{地点}}。",
+                    "{{风景元素}}、{{风景元素}}，还有{{旅行物品}}，这就是我的{{时间词语}}。",
+                    "如果不是{{地点}}，我可能永远不知道{{旅行感受}}。",
+                    "收集地图上每一道{{风景元素}}。",
+                    "去{{地点}}，{{旅行感受}}。",
+                    "{{交通工具}}与{{风景元素}}，缺一不可。",
+                    "{{旅行感受}}，在{{地点}}的{{时间词语}}。"
+                ],
+                // 美食
+                美食: [
+                    "{{美食形容词}}的{{食物}}，治愈一切。",
+                    "今天{{动词吃}}{{食物}}，感觉{{美食感受}}。",
+                    "{{食物}}＋{{食物}}＝{{美食感受}}。",
+                    "没有什么是一顿{{食物}}解决不了的，如果有就{{动词吃}}两顿。",
+                    "{{美食形容词}}的味道，是{{时间词语}}的{{美食感受}}。",
+                    "{{动词吃}}一口{{食物}}，{{美食感受}}。",
+                    "{{食物}}在口中融化，{{美食感受}}。",
+                    "今日份{{美食形容词}}：{{食物}}。",
+                    "{{时间词语}}，宜{{动词吃}}{{食物}}。",
+                    "{{美食感受}}，从{{食物}}开始。"
+                ],
+                // 自拍
+                自拍: [
+                    "{{自拍副词}}拍一张，{{自拍感受}}。",
+                    "今日份{{自拍形容词}}，请查收。",
+                    "{{自拍动作}}，记录{{时间词语}}的自己。",
+                    "{{自拍形容词}}，{{自拍感受}}。",
+                    "对着镜头{{自拍动作}}，{{自拍感受}}。",
+                    "{{时间词语}}的自拍，{{自拍感受}}。",
+                    "{{自拍副词}}，长这样。",
+                    "没有{{自拍形容词}}，只有更{{自拍形容词}}。",
+                    "拍个照，留下{{时间词语}}的{{自拍感受}}。",
+                    "{{自拍动作}}一下，今天也要{{自拍感受}}。"
+                ],
+                // 励志
+                励志: [
+                    "{{励志动词}}，才能{{励志结果}}。",
+                    "{{时间词语}}，{{励志形容词}}地{{励志动词}}。",
+                    "{{励志形容词}}的人，终会{{励志结果}}。",
+                    "{{励志动词}}不一定成功，但不{{励志动词}}一定{{励志反义结果}}。",
+                    "相信{{励志结果}}，相信{{时间词语}}。",
+                    "{{励志形容词}}，是{{励志动词}}出来的。",
+                    "{{励志动词}}吧，直到{{励志结果}}。",
+                    "{{时间词语}}的{{励志形容词}}，终将{{励志结果}}。",
+                    "没有{{励志形容词}}，只有更{{励志形容词}}。",
+                    "{{励志动词}}，{{励志结果}}就在前方。"
+                ],
+                // 心情
+                心情: [
+                    "今天心情{{心情形容词}}，因为{{心情原因}}。",
+                    "{{时间词语}}，有点{{心情形容词}}。",
+                    "{{心情形容词}}，但没关系。",
+                    "情绪{{心情波动}}，像{{心情比喻}}。",
+                    "想{{心情动作}}，却{{心情反动作}}。",
+                    "{{心情形容词}}的时候，就{{心情动作}}一下吧。",
+                    "心里有场{{心情比喻}}，但表面{{心情平静}}。",
+                    "{{时间词语}}的心情，{{心情形容词}}的。",
+                    "接纳{{心情形容词}}的自己。",
+                    "{{心情形容词}}，也是生活的一部分。"
+                ]
+            };
+
+            // 2. 随机词库（每个类别对应可填充的词）
+            const words = {
+                // 通用
+                心情副词: ['偷偷', '悄悄', '大大', '小小', '美美', '轻轻', '静静', '好好'],
+                日常动词: ['发个呆', '喝杯茶', '听听歌', '散散步', '看看云', '拍拍照', '写写字', '想想你'],
+                时间词语: ['清晨', '午后', '黄昏', '夜晚', '周末', '此刻', '今天', '这个季节'],
+                微小美好: ['一缕阳光', '一朵花开', '一杯咖啡', '一首老歌', '一个微笑', '一阵微风', '一片落叶', '一颗星星'],
+                日常名词: ['生活', '日子', '时光', '心情', '小确幸', '碎碎念', '日常', '烟火气'],
+                心情形容词: ['美美', '甜甜', '淡淡', '暖暖', '静静', '软软', '懒懒', '悠悠'],
+
+                // 旅行
+                地点: ['海边', '山间', '古镇', '森林', '草原', '沙漠', '湖边', '田野'],
+                旅行感受: ['自由自在', '心旷神怡', '放空一切', '遇见自己', '风都温柔', '时光变慢', '烦恼全无', '灵魂充电'],
+                交通工具: ['火车', '飞机', '单车', '双脚', '小船', '越野车', '摩托车', '热气球'],
+                风景元素: ['日出', '云海', '星空', '晚霞', '海浪', '花田', '雪山', '彩虹'],
+                旅行物品: ['相机', '日记本', '背包', '明信片', '地图', '草帽', '墨镜', '水杯'],
+
+                // 美食
+                食物: ['火锅', '奶茶', '蛋糕', '烤肉', '冰淇淋', '寿司', '炸鸡', '意面'],
+                动词吃: ['吃', '尝', '品', '咬', '吸', '啃', '喝', '咽'],
+                美食形容词: ['酥脆', '软糯', '香浓', '酸甜', '麻辣', '鲜嫩', '冰凉', '热乎'],
+                美食感受: ['幸福爆表', '卡路里充值', '快乐翻倍', '烦恼全消', '人生值得', '治愈满分', '能量加满', '人间美味'],
+
+                // 自拍
+                自拍副词: ['随手', '认真', '臭美', '随意', '精心', '假装', '随便', '日常'],
+                自拍感受: ['开心', '自信', '可爱', '迷人', '元气满满', '有点酷', '温柔', '美滋滋'],
+                自拍形容词: ['美颜', '原相机', '无滤镜', '真实', '可爱', '高冷', '软萌', '飒'],
+                自拍动作: ['比个耶', '歪头杀', '抿嘴笑', '看镜头', '撩头发', '托腮', '闭眼', '侧脸'],
+
+                // 励志
+                励志动词: ['坚持', '努力', '奋斗', '拼搏', '加油', '不放弃', '向前', '深耕'],
+                励志结果: ['闪闪发光', '梦想成真', '顶峰相见', '未来可期', '不负韶华', '惊艳所有人', '成为光', '抵达远方'],
+                励志形容词: ['勇敢', '坚定', '执着', '热血', '无畏', '炽热', '滚烫', '倔强'],
+                励志反义结果: ['遗憾', '后悔', '错过', '碌碌无为', '黯然退场', '不甘心', '虚度', '平凡'],
+
+                // 心情
+                心情原因: ['天气太好', '听到一首歌', '想起旧事', '收到惊喜', '什么都没发生', '风吹过', '阳光太暖', '夜晚太静'],
+                心情波动: ['起起落落', '突然失控', '像过山车', '悄悄变化', '难以名状', '忽明忽暗', '飘忽不定', '渐渐平静'],
+                心情比喻: ['海啸', '迷雾', '毛毛雨', '晴空', '暴风雨', '柔软沙滩', '暗涌', '微光'],
+                心情动作: ['发呆', '听歌', '写日记', '散步', '大哭一场', '大吃一顿', '睡觉', '看窗外'],
+                心情反动作: ['不想动', '无法开口', '躲起来', '沉默', '逃避', '假装坚强', '什么都不做', '憋在心里'],
+                心情平静: ['微微一笑', '深呼吸', '对自己说没事', '安静看着', '默默消化', '假装一切都好', '放空', '顺其自然']
+            };
+
+            // 工具函数：随机选取数组元素
+            function randomPick(arr) {
+                return arr[Math.floor(Math.random() * arr.length)];
+            }
+
+            // 核心生成函数：根据类别返回一条随机生成的文案
+            function generateSentence(category) {
+                // 如果category不在templates中，回退default
+                const tmplArr = templates[category] || templates.default;
+                // 随机选择一个模板
+                let template = randomPick(tmplArr);
+                
+                // 替换模板中的所有 {{变量}} 为随机词
+                // 使用正则匹配所有 {{...}} 形式的占位符
+                return template.replace(/\{\{(.*?)\}\}/g, (match, key) => {
+                    // key 是变量名，例如 '心情副词'
+                    // 从words中获取对应的词数组，如果不存在则返回原占位符（但一般都会有）
+                    const wordArray = words[key];
+                    if (wordArray && wordArray.length > 0) {
+                        return randomPick(wordArray);
+                    }
+                    // 保底：如果词库中没有这个key，则返回一个默认符号
+                    return '✨';
+                });
+            }
+
+            // 生成多条（默认8条），每条独立随机
+            function generateMultiple(category, count = 8) {
+                const sentences = [];
+                for (let i = 0; i < count; i++) {
+                    sentences.push(generateSentence(category));
+                }
+                return sentences;
+            }
+
+            // 根据输入文本推测类别（与之前相同，但增加了同义词映射）
+            function guessCategory(inputText) {
+                const lower = inputText.trim().toLowerCase();
+                if (!lower) return 'default';
+
+                if (/(旅行|旅游|出游|度假|风景|山河|海边|古镇|草原)/.test(lower)) return '旅行';
+                if (/(美食|吃货|吃|甜品|火锅|烤肉|干饭|奶茶|蛋糕)/.test(lower)) return '美食';
+                if (/(自拍|拍照|照片|相片|臭美|对镜拍|镜子|相机)/.test(lower)) return '自拍';
+                if (/(励志|努力|奋斗|加油|坚持|梦想|闪闪发光|未来)/.test(lower)) return '励志';
+                if (/(心情|emo|伤感|难过|开心|快乐|情绪|丧|忧郁|治愈)/.test(lower)) return '心情';
+                
+                return 'default';
+            }
+
+            // ---------- DOM 元素 ----------
+            const inputEl = document.getElementById('keywordInput');
+            const generateBtn = document.getElementById('generateBtn');
+            const tags = document.querySelectorAll('.tag');
+            const resultsContainer = document.getElementById('resultsContainer');
+            const toastEl = document.getElementById('toast');
+
+            function showToast(msg = '✨ 文案已复制到剪贴板') {
+                toastEl.textContent = msg;
+                toastEl.classList.add('show');
+                clearTimeout(window.toastTimer);
+                window.toastTimer = setTimeout(() => {
+                    toastEl.classList.remove('show');
+                }, 1800);
+            }
+
+            // 渲染函数：根据输入生成文案并显示
+            function renderByInput(inputValue) {
+                const category = guessCategory(inputValue);
+                const sentences = generateMultiple(category, 8);
+
+                let htmlStr = '';
+                sentences.forEach(text => {
+                    // 转义双引号，以免 data-copy 属性出错
+                    const escaped = text.replace(/"/g, '&quot;');
+                    htmlStr += `
+                        <div class="result-item">
+                            <span class="copy-content">${text}</span>
+                            <button class="copy-btn" data-copy="${escaped}" title="复制文案">
+                                <i class="fa-regular fa-copy"></i>
+                            </button>
+                        </div>
+                    `;
+                });
+                resultsContainer.innerHTML = htmlStr;
+            }
+
+            // 处理生成
+            function handleGenerate() {
+                let keyword = inputEl.value.trim();
+                if (keyword === '') {
+                    keyword = '生活';
+                    inputEl.value = '生活';
+                }
+                renderByInput(keyword);
+            }
+
+            // 标签点击
+            tags.forEach(tag => {
+                tag.addEventListener('click', (e) => {
+                    const keyword = tag.getAttribute('data-keyword') || '旅行';
+                    inputEl.value = keyword;
+                    renderByInput(keyword);
+                });
+            });
+
+            // 复制功能
+            resultsContainer.addEventListener('click', (e) => {
+                const copyButton = e.target.closest('.copy-btn');
+                if (!copyButton) return;
+
+                const textToCopy = copyButton.getAttribute('data-copy');
+                if (!textToCopy) return;
+
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(textToCopy).then(() => {
+                        showToast('📋 文案已复制，去发朋友圈吧！');
+                    }).catch(() => {
+                        fallbackCopy(textToCopy);
+                    });
+                } else {
+                    fallbackCopy(textToCopy);
+                }
+            });
+
+            function fallbackCopy(text) {
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                textarea.style.position = 'fixed';
+                textarea.style.opacity = '0';
+                document.body.appendChild(textarea);
+                textarea.select();
+                try {
+                    document.execCommand('copy');
+                    showToast('📋 文案已复制 (兼容模式)');
+                } catch (err) {
+                    showToast('❌ 复制失败，请手动复制');
+                }
+                document.body.removeChild(textarea);
+            }
+
+            // 绑定事件
+            generateBtn.addEventListener('click', handleGenerate);
+            inputEl.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleGenerate();
+                }
+            });
+
+            // 初始化：显示旅行相关（输入框默认旅行）
+            inputEl.value = '旅行';
+            renderByInput('旅行');
+        })();
+    </script>
+</body>
+</html>
